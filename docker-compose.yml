@@ -1,0 +1,46 @@
+version: "3"
+services:
+  auth-service:
+    build: "./auth-service"
+    ports:
+      - 7100:7100
+    volumes:
+      - ./auth-service:/app
+    environment:
+      - MONGO_URI="mongodb://db/auth_service"
+    links:
+      - db
+
+  product-service:
+    build: "./product-service"
+    ports:
+      - 7101:7101
+    volumes:
+      - ./product-service:/app
+    environment:
+      - MONGO_URI="mongodb://db/product_service"
+    links:
+      - rabbitmq
+      - db
+
+  order-service:
+    build: "./order-service"
+    ports:
+      - 7102:7102
+    volumes:
+      - ./order-service:/app
+    environment:
+      - MONGO_URI1="mongodb+srv://test:test@cluster0.xsbh2.mongodb.net/order_service?retryWrites=true&w=majority"
+      - MONGO_URI="mongodb://db/order_service"
+    links:
+      - product-service
+      - rabbitmq
+      - db
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+
+  db:
+    image: mongo
